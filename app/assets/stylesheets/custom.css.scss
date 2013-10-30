@@ -142,6 +142,10 @@ aside {
       margin-top: 0px;
     }
   }
+  textarea {
+    height: 100px;
+    margin-bottom: 5px;
+  }
 }
 
 .gravatar {
@@ -188,4 +192,22 @@ input {
       border-bottom: 1px solid $grayLighter;
     }
   }
+}
+
+/* microposts */
+
+.microposts {
+  list-style: none;
+  margin: 10px 0 0 0;
+  
+  li {
+    padding: 10px 0;
+    border-top: 1px solid #e8e8e8;
+  }
+}
+.content {
+  display: block;
+}
+.timestamp {
+  color: $grayLight;
 }
