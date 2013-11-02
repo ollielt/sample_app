@@ -11,7 +11,8 @@ describe "Authentication" do
     it { should have_title('Sign in') }
     it { should_not have_content('Profile') }
     it { should_not have_content('Settings') }
-
+    it { should have_field('Remember me') }
+    
   end
   
   describe "signin" do
@@ -163,13 +164,8 @@ describe "Authentication" do
       
       describe "submitting a DELETE request to the Users#destroy action" do
         before { delete user_path(user) }
-        specify { expect(response).to redirect_to(root_url) }
+        specify { expect(response).to redirect_to(root_path) }
       end
-      
-      #      describe "accessing the signup page" do
-      # before { visit signup_path }
-      # it { should have_content('Welcome') }
-      # end
     end
   end
 end

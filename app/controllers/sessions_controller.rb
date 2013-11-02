@@ -4,12 +4,9 @@ class SessionsController < ApplicationController
   end
   
   def create
-  # Old Code with old params hash
-    user = User.find_by(email: params[:session][:email].downcase)
-    if user && user.authenticate(params[:session][:password])
-  #    user = User.find_by_email(params[:email])
-  # if user && user.authenticate(params[:password])
-      # Sign the user in and redirect to the user's show page
+    user = User.find_by_email(params[:email].downcase)
+    if user && user.authenticate(params[:password])
+      session[:user] = user.id
       sign_in user
       redirect_back_or user
     else
@@ -20,6 +17,6 @@ class SessionsController < ApplicationController
   
   def destroy
     sign_out
-    redirect_to root_url
+    redirect_to root_path
   end
 end

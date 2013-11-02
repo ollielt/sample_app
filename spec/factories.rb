@@ -8,6 +8,16 @@ FactoryGirl.define do
     factory :admin do
       admin true
     end
+    
+    factory :reset do
+      password_reset_token "something"
+      password_reset_sent_at { 1.hour.ago }
+    end
+    
+    factory :reset_expire do
+      password_reset_token "something"
+      password_reset_sent_at { 5.hour.ago }
+    end
   end
     
   factory :micropost do

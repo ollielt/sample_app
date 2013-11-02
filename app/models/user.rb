@@ -8,15 +8,16 @@ class User < ActiveRecord::Base
   has_many :followers, through: :reverse_relationships, source: :follower
   validates :name, presence: true, length: { maximum: 50 }
   before_save { self.email = email.downcase }
-  before_create :create_remember_token
+  before_create { generate_token(:auth_token) }
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
   validates :email, presence: true,
                     format: { with: VALID_EMAIL_REGEX },
                     uniqueness: { case_sensitive: false }
-  validates :password, length: { minimum: 6 }
+  validates :password, presence: true,
+                       length: { within: 6..40 }, if: :should_validate_password?
   has_secure_password
   
-  def User.new_remember_token
+  def User.new_auth_token
     SecureRandom.urlsafe_base64
   end
   
@@ -24,26 +25,38 @@ class User < ActiveRecord::Base
     Digest::SHA1.hexdigest(token.to_s)
   end
   
+  def send_password_reset
+    generate_token(:password_reset_token)
+    self.password_reset_sent_at = Time.zone.now
+    save!
+    UserMailer.password_reset(self).deliver
+  end
+
   def feed
     Micropost.from_users_followed_by(self)
   end
-
+    
   def following?(other_user)
     relationships.find_by(followed_id: other_user.id)
   end
-  
+    
   def follow!(other_user)
     relationships.create!(followed_id: other_user.id)
   end
-  
+    
   def unfollow!(other_user)
     relationships.find_by(followed_id: other_user.id).destroy!
   end
-  
+    
   private
   
-    def create_remember_token
-      self.remember_token = User.encrypt(User.new_remember_token)
+    def generate_token(column)
+      begin
+        self[column] = User.encrypt(User.new_auth_token)
+      end while User.exists?(column ||= self[column])
     end
-
+    
+    def should_validate_password?
+      !persisted? || !password.nil? || !password_confirmation.nil?
+    end
 end

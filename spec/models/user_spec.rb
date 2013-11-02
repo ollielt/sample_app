@@ -14,7 +14,7 @@ describe User do
   it { should respond_to(:password_digest) }
   it { should respond_to(:password) }
   it { should respond_to(:password_confirmation) }
-  it { should respond_to(:remember_token) }
+  it { should respond_to(:auth_token) }
   it { should be_valid }
   it { should respond_to(:authenticate) }
   it { should respond_to(:admin) }
@@ -126,9 +126,9 @@ describe User do
     end
   end
   
-  describe "remember token" do
+  describe "auth token" do
     before { @user.save }
-    its(:remember_token) { should_not be_blank }
+    its(:auth_token) { should_not be_blank }
   end
   
   describe "micropost associations" do
@@ -196,6 +196,27 @@ describe User do
       
       it { should_not be_following(other_user) }
       its(:followed_users) { should_not include(other_user) }
+    end
+  end
+  
+  describe "send_password_reset" do
+    let(:user) { FactoryGirl.create(:user) }
+    
+    it "generates a unique password_reset_token each time" do
+      user.send_password_reset
+      last_token = user.password_reset_token
+      user.send_password_reset
+      user.password_reset_token.should_not eq(last_token)
+    end
+    
+    it "saves the time the password reset was sent" do
+      user.send_password_reset
+      user.reload.password_reset_sent_at.should be_present
+    end
+    
+    it "delivers email to user" do
+      user.send_password_reset
+      last_email.to.should include(user.email)
     end
   end
 end

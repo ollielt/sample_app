@@ -9,6 +9,7 @@ Spork.prefork do
   require File.expand_path("../../config/environment", __FILE__)
   require 'rspec/rails'
   require 'rspec/autorun'
+  require 'capybara/rspec'
   # Loading more in this block will cause your tests to run faster. However,
   # if you change any configuration or code from libraries loaded here, you'll
   # need to restart spork for it take effect.
@@ -78,6 +79,8 @@ Spork.prefork do
   # the seed, which is printed after each run.
   #     --seed 1234
     config.order = "random"
+    config.include(MailerMacros)
+    config.before(:each) { reset_email }
   end
 end
 
